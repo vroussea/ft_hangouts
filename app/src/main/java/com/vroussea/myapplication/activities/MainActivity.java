@@ -25,4 +25,13 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
     }
+
+    /** Called when the user taps the Send button */
+    public void showContacts(View view) {
+        Intent intent = new Intent(this, DisplayMessageActivity.class);
+        EditText editText = findViewById(R.id.editText);
+        String message = editText.getText().toString();
+        intent.putExtra(EXTRA_MESSAGE, message);
+        startActivity(intent);
+    }
 }
