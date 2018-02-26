@@ -34,7 +34,7 @@ public class ContactDatabaseTest {
     }
 
     @Test
-    public void ContactasSameFirstName() throws Exception {
+    public void ContactHasSameFirstName() throws Exception {
         Contact contact = new Contact();
         contact.setFirstName("george");
         mUserDao.insert(contact);
@@ -43,7 +43,7 @@ public class ContactDatabaseTest {
     }
 
     @Test
-    public void ContactasSameLastName() throws Exception {
+    public void ContactHasSameLastName() throws Exception {
         Contact contact = new Contact();
         contact.setLastName("george");
         mUserDao.insert(contact);
@@ -51,8 +51,7 @@ public class ContactDatabaseTest {
         assertThat(byName.get(0).getFirstName(), equalTo(contact.getFirstName()));
     }
 
-    @Test
-    public void findTwoContacts() throws Exception {
+    @Test    public void findTwoContacts() throws Exception {
         Contact contact = new Contact();
         contact.setLastName("george");
         mUserDao.insert(contact);
@@ -65,14 +64,8 @@ public class ContactDatabaseTest {
 
     @Test
     public void findNoContact() throws Exception {
-        Contact contact = new Contact();
-        contact.setLastName("george");
-        mUserDao.insert(contact);
-        Contact contact1 = new Contact();
-        contact1.setFirstName("george");
-        mUserDao.insert(contact1);
         List<Contact> byName = mUserDao.findUsersByName("george");
-        assertThat(byName.size(), equalTo(2));
+        assertThat(byName.size(), equalTo(0));
     }
 
     @Test

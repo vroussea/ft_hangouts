@@ -1,37 +1,32 @@
 package com.vroussea.myapplication.activities;
 
-import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.ListFragment;
+import android.arch.persistence.room.Room;
+import android.content.Context;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.EditText;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
-import com.vroussea.myapplication.R;
-import com.vroussea.myapplication.activities.DisplayMessageActivity;
+import com.vroussea.myapplication.contact.Contact;
+import com.vroussea.myapplication.contact.ContactDao;
+import com.vroussea.myapplication.contact.ContactDatabase;
+import com.vroussea.myapplication.toasts.CustomToast;
 
-public class MainActivity extends AppCompatActivity {
-    public static final String EXTRA_MESSAGE = "com.vroussea.myapplication.MESSAGE";
+public class MainActivity extends Activity {
+    private ContactDao mUserDao;
+    private ContactDatabase mDb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        mDb = Room.databaseBuilder(getApplicationContext(), ContactDatabase.class, "contacts").build();
+        mUserDao = mDb.contactDao();
     }
 
-    /** Called when the user taps the Send button */
-    public void sendMessage(View view) {
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
-        EditText editText = findViewById(R.id.editText);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
-    }
-
-    /** Called when the user taps the Send button */
-    public void showContacts(View view) {
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
-        EditText editText = findViewById(R.id.editText);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
-    }
 }

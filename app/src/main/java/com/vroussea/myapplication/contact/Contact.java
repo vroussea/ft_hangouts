@@ -3,6 +3,7 @@ package com.vroussea.myapplication.contact;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.widget.ImageView;
 
 @Entity(tableName = "contacts")
 public class Contact {
@@ -19,10 +20,10 @@ public class Contact {
     private String eMail;
     private String nickname;
 
-    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
-    private byte[]  profilePic;
+    private int profilePic;
 
     public Contact() {
+        profilePic = 0;
     }
 
     public int get_id() {
@@ -73,11 +74,11 @@ public class Contact {
         this.nickname = nickname;
     }
 
-    public byte[] getProfilePic() {
+    public int getProfilePic() {
         return profilePic;
     }
 
-    public void setProfilePic(byte[] profilePic) {
+    public void setProfilePic(int profilePic) {
         this.profilePic = profilePic;
     }
 }
