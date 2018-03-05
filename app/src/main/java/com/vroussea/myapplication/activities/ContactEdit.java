@@ -34,7 +34,6 @@ public class ContactEdit extends AppCompatActivity {
 
     }
 
-
     public void onSubmitContact(View view) {
         String firstName= ((EditText)findViewById(R.id.first_name)).getText().toString();
         String lastName = ((EditText)findViewById(R.id.last_name)).getText().toString();

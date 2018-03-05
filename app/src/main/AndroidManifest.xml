@@ -27,6 +27,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.ContactsActivity" />
         </activity>
+        <activity android:name=".activities.ContactDisplay"
+            android:parentActivityName=".activities.ContactsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.ContactsActivity" />
+        </activity>
     </application>
 
 </manifest>

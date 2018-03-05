@@ -1,5 +1,6 @@
 package com.vroussea.myapplication.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.HandlerThread;
@@ -45,14 +46,14 @@ public class ContactsActivity extends AppCompatActivity {
         Toolbar myToolbar = findViewById(R.id.menu_contact);
         setSupportActionBar(myToolbar);
 
-        displayContacts();
+        displayContacts(new Intent(this, ContactDisplay.class));
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
 
-        displayContacts();
+        displayContacts(new Intent(this, ContactDisplay.class));
     }
 
     @Override
@@ -89,7 +90,7 @@ public class ContactsActivity extends AppCompatActivity {
         return future.get();
     }
 
-    private void displayContacts() {
+    private void displayContacts(Intent intent) {
         final ListView listview = findViewById(R.id.listview);
 
         List<Contact> contacts;
@@ -111,12 +112,10 @@ public class ContactsActivity extends AppCompatActivity {
                 view.animate().alpha(0).withEndAction(new Runnable() {
                     @Override
                     public void run() {
-                        contacts.remove(item);
-                        new Thread(() -> {
-                            mDao.delete(item);
-                        }).start();
+                        intent.putExtra("contact", item);
                         adapter.notifyDataSetChanged();
                         view.setAlpha(1);
+                        startActivity(intent);
                     }
                 });
             }

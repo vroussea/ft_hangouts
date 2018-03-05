@@ -3,10 +3,13 @@ package com.vroussea.myapplication.contact;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.os.Parcelable;
 import android.widget.ImageView;
 
+import java.io.Serializable;
+
 @Entity(tableName = "contacts")
-public class Contact {
+public class Contact implements Serializable {
     @PrimaryKey(autoGenerate = true)
     private int  _id;
 
