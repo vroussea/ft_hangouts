@@ -13,21 +13,22 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activities.ContactsActivity"
-            android:label="@string/title_activity_contact"
+            android:label="@string/title_activity_contacts_list"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".activities.ContactEdit"
-                android:parentActivityName=".activities.ContactsActivity">
+            android:label="@string/title_activity_contact_edit"
+            android:parentActivityName=".activities.ContactsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.ContactsActivity" />
         </activity>
         <activity android:name=".activities.ContactDisplay"
+            android:label="@string/title_activity_contact_display"
             android:parentActivityName=".activities.ContactsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
