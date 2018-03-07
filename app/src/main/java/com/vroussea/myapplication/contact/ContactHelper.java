@@ -54,4 +54,10 @@ public class ContactHelper extends Activity {
             mDao.update(contact);
         }).start();
     }
+
+    public void removeContact(Contact contact) {
+        new Thread(() -> {
+            mDao.delete(contact);
+        }).start();
+    }
 }

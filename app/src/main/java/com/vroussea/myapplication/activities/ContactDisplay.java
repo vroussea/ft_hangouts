@@ -1,7 +1,9 @@
 package com.vroussea.myapplication.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,18 +33,31 @@ public class ContactDisplay extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        switch (item.getItemId()) {
+            case R.id.action_edit_contact:
+                Intent intent = new Intent(this, ContactEdit.class);
+                intent.putExtra("isCreating", false);
+                intent.putExtra("contact", currentContact);
+                startActivity(intent);
+                return true;
+            case R.id.action_settings:
+                return true;
+            case R.id.action_delete_contact:
+//                contactHelper.removeContact(currentContact);
+//                finish();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_edit_contact) {
-            Intent intent = new Intent(this, ContactEdit.class);
-            intent.putExtra("isCreating", false);
-            intent.putExtra("contact", currentContact);
-            startActivity(intent);
-            return true;
-        } else if (id == R.id.action_settings) {
-            return true;
-        } else if (id == R.id.action_delete_contact) {
-            return true;
+                new AlertDialog.Builder(this)
+                        .setMessage(R.string.delete_alert)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                contactHelper.removeContact(currentContact);
+                                finish();
+                            }
+                        })
+                        .setNegativeButton(R.string.no, null)
+                        .show();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);

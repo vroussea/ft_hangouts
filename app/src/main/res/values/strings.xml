@@ -15,4 +15,7 @@
     <string name="title_activity_contact_display" translatable="false">Contact</string>
     <string name="action_edit_contact">Edit contact</string>
     <string name="action_delete_contact">Delete contact</string>
+    <string name="delete_alert">Do you really want to delete this contact ?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
