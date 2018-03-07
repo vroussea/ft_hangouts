@@ -10,11 +10,13 @@ import android.widget.TextView;
 
 import com.vroussea.myapplication.R;
 import com.vroussea.myapplication.contact.Contact;
-import com.vroussea.myapplication.contact.ContactDao;
+import com.vroussea.myapplication.contact.ContactHelper;
 
 public class ContactDisplay extends AppCompatActivity {
 
-    ContactDao mDao;
+    ContactHelper contactHelper = new ContactHelper();
+
+    Contact currentContact;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -32,11 +34,14 @@ public class ContactDisplay extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_edit_contact) {
-            finish();
-            //Intent intent = new Intent(this, ContactEdit.class);
-            //startActivity(intent);
+            Intent intent = new Intent(this, ContactEdit.class);
+            intent.putExtra("isCreating", false);
+            intent.putExtra("contact", currentContact);
+            startActivity(intent);
             return true;
         } else if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.action_delete_contact) {
             return true;
         }
 
@@ -47,11 +52,23 @@ public class ContactDisplay extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact_display);
-
-        displayContactData((Contact) getIntent().getSerializableExtra("contact"));
     }
 
-    private void displayContactData(Contact currentContact) {
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setContentView(R.layout.activity_contact_display);
+
+        try {
+            currentContact = contactHelper.getContactById((int) getIntent().getSerializableExtra("contact"));
+        } catch (Exception e) {
+
+        }
+
+        displayContactData();
+    }
+
+    private void displayContactData() {
         TextView firstName = findViewById(R.id.first_name);
         TextView lastName = findViewById(R.id.last_name);
         TextView nickname = findViewById(R.id.nickname);

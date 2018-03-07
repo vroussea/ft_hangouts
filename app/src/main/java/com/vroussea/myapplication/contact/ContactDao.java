@@ -25,5 +25,8 @@ public interface ContactDao {
 
     @Query("SELECT * FROM contacts WHERE first_name LIKE :search"
             + " OR last_name LIKE :search")
-    List<Contact> findUsersByName(String search);
+    List<Contact> findContactsByName(String search);
+
+    @Query("SELECT * FROM contacts WHERE _id LIKE :search")
+    Contact findContactById(int search);
 }

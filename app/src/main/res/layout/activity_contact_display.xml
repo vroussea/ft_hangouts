@@ -6,15 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.vroussea.myapplication.activities.ContactsActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/options_contact"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:layout_constraintTop_toTopOf="parent"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+    <include layout="@layout/toolbar_options" />
 
     <TextView
         android:id="@+id/first_name"

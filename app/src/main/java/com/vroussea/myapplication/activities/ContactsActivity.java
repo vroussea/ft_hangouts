@@ -1,9 +1,7 @@
 package com.vroussea.myapplication.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.HandlerThread;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -16,19 +14,12 @@ import android.widget.ListView;
 import com.vroussea.myapplication.R;
 import com.vroussea.myapplication.adapters.ContactAdapter;
 import com.vroussea.myapplication.contact.Contact;
-import com.vroussea.myapplication.contact.ContactDao;
-import com.vroussea.myapplication.contact.ContactDatabase;
+import com.vroussea.myapplication.contact.ContactHelper;
 
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class ContactsActivity extends AppCompatActivity {
-    private ContactDao mDao;
+    ContactHelper contactHelper = new ContactHelper();
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -66,6 +57,7 @@ public class ContactsActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_add_contact) {
             Intent intent = new Intent(this, ContactEdit.class);
+            intent.putExtra("isCreating", true);
             startActivity(intent);
             return true;
         } else if (id == R.id.action_settings) {
@@ -75,27 +67,12 @@ public class ContactsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private List<Contact> getContacts() throws ExecutionException, InterruptedException {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        Callable<List<Contact>> callable = new Callable<List<Contact>>() {
-            @Override
-            public List<Contact> call() {
-                mDao = ContactDatabase.getDatabase(getApplicationContext()).contactDao();
-                return mDao.loadAllContacts();
-            }
-        };
-        Future<List<Contact>> future = executor.submit(callable);
-        executor.shutdown();
-
-        return future.get();
-    }
-
     private void displayContacts(Intent intent) {
         final ListView listview = findViewById(R.id.listview);
 
         List<Contact> contacts;
         try {
-            contacts = getContacts();
+            contacts = contactHelper.getContacts();
         } catch (Exception e) {
             finish();
             return;
@@ -112,7 +89,7 @@ public class ContactsActivity extends AppCompatActivity {
                 view.animate().alpha(0).withEndAction(new Runnable() {
                     @Override
                     public void run() {
-                        intent.putExtra("contact", item);
+                        intent.putExtra("contact", item.get_id());
                         adapter.notifyDataSetChanged();
                         view.setAlpha(1);
                         startActivity(intent);
