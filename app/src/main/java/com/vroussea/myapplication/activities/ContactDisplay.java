@@ -84,16 +84,17 @@ public class ContactDisplay extends AppCompatActivity {
     }
 
     private void displayContactData() {
-        TextView firstName = findViewById(R.id.first_name);
-        TextView lastName = findViewById(R.id.last_name);
-        TextView nickname = findViewById(R.id.nickname);
-        TextView phoneNumber = findViewById(R.id.phone_number);
-        TextView eMail = findViewById(R.id.eMail);
+        append(findViewById(R.id.first_name), currentContact.getFirstName());
+        append(findViewById(R.id.last_name), currentContact.getLastName());
+        append(findViewById(R.id.nickname), currentContact.getNickname());
+        append(findViewById(R.id.phone_number), currentContact.getPhoneNumber());
+        append(findViewById(R.id.eMail), currentContact.getEMail());
+    }
 
-        firstName.setText(currentContact.getFirstName());
-        lastName.setText(currentContact.getLastName());
-        nickname.setText(currentContact.getNickname());
-        phoneNumber.setText(currentContact.getPhoneNumber());
-        eMail.setText(currentContact.getEMail());
+    private void append(TextView textView, String text) {
+        if (text.isEmpty()) {
+            text = getResources().getString(R.string.empty_field);
+        }
+        textView.append(" : " + text);
     }
 }

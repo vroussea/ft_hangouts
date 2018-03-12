@@ -30,12 +30,15 @@ public class ContactsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
 
+
         Toolbar myToolbar = findViewById(R.id.menu_contact);
         setSupportActionBar(myToolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        myToolbar.setTitle("");
 
         displayContacts(new Intent(this, ContactDisplay.class));
     }
@@ -61,6 +64,8 @@ public class ContactsActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         } else if (id == R.id.action_settings) {
+            //Intent intent = new Intent(this, SettingsActivity.class);
+            //startActivity(intent);
             return true;
         }
 
