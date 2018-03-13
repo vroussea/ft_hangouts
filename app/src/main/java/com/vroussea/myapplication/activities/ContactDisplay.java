@@ -3,16 +3,20 @@ package com.vroussea.myapplication.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.vroussea.myapplication.R;
 import com.vroussea.myapplication.contact.Contact;
 import com.vroussea.myapplication.contact.ContactHelper;
+import com.vroussea.myapplication.utils.Colors;
 
 public class ContactDisplay extends AppCompatActivity {
 
@@ -25,6 +29,23 @@ public class ContactDisplay extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.options_contact, menu);
         return true;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Colors colors = new Colors();
+
+        getSupportActionBar().setBackgroundDrawable(colors.getActionBarColor());
+
+        Window window = getWindow();
+
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        window.setStatusBarColor(ContextCompat.getColor(this, colors.getSatusBarColor()));
     }
 
     @Override
@@ -41,6 +62,8 @@ public class ContactDisplay extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             case R.id.action_settings:
+                intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
                 return true;
             case R.id.action_delete_contact:
 //                contactHelper.removeContact(currentContact);

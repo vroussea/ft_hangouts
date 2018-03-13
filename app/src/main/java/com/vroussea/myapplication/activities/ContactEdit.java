@@ -1,15 +1,20 @@
 package com.vroussea.myapplication.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.vroussea.myapplication.R;
 import com.vroussea.myapplication.contact.Contact;
 import com.vroussea.myapplication.contact.ContactBuilder;
 import com.vroussea.myapplication.contact.ContactHelper;
+import com.vroussea.myapplication.utils.Colors;
 
 public class ContactEdit extends AppCompatActivity {
     ContactHelper contactHelper = new ContactHelper();
@@ -27,11 +32,32 @@ public class ContactEdit extends AppCompatActivity {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        Colors colors = new Colors();
+
+        getSupportActionBar().setBackgroundDrawable(colors.getActionBarColor());
+
+        Window window = getWindow();
+
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        window.setStatusBarColor(ContextCompat.getColor(this, colors.getSatusBarColor()));
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
             onBackPressed();
             return  true;
+        } else if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
         }
         return super.onOptionsItemSelected(item);
 

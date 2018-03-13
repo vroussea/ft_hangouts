@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <ListPreference
-        android:defaultValue="@string/pref_colorDefault"
-        android:dependency="pref_sync"
+        android:defaultValue="@string/blue_color"
         android:dialogTitle="@string/pref_color"
         android:entries="@array/pref_colorNames"
         android:entryValues="@array/pref_colorValues"
-        android:key="pref_syncConnectionType"
+        android:key="@string/pref_color"
         android:title="@string/pref_color" />
 </PreferenceScreen>
