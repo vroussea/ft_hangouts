@@ -6,8 +6,6 @@
     android:layout_height="match_parent"
     tools:context="com.vroussea.myapplication.activities.ContactsActivity">
 
-    <include layout="@layout/toolbar_options" />
-
     <TextView
         android:id="@+id/first_name"
         android:layout_width="wrap_content"

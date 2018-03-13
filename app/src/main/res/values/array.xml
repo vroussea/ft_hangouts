@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_colorNames">
+        <item>@string/blue_color</item>
+        <item>@string/darkBlue_color</item>
+        <item>@string/red_color</item>
+        <item>@string/green_color</item>
+        <item>@string/yellow_color</item>
+        <item>@string/black_color</item>
+    </string-array>
+
+    <string-array name="pref_colorValues">
+        <item>"blue"</item>
+        <item>"dark blue"</item>
+        <item>"red"</item>
+        <item>"green"</item>
+        <item>"yellow"</item>
+        <item>"black"</item>
+    </string-array>
+</resources>

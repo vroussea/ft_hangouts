@@ -2,12 +2,15 @@ package com.vroussea.myapplication.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -15,6 +18,7 @@ import com.vroussea.myapplication.R;
 import com.vroussea.myapplication.adapters.ContactAdapter;
 import com.vroussea.myapplication.contact.Contact;
 import com.vroussea.myapplication.contact.ContactHelper;
+import com.vroussea.myapplication.utils.Colors;
 
 import java.util.List;
 
@@ -30,12 +34,14 @@ public class ContactsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
 
-        Toolbar myToolbar = findViewById(R.id.menu_contact);
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar_menu);
         setSupportActionBar(myToolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        myToolbar.setTitle("");
 
         displayContacts(new Intent(this, ContactDisplay.class));
     }
@@ -45,6 +51,23 @@ public class ContactsActivity extends AppCompatActivity {
         super.onRestart();
 
         displayContacts(new Intent(this, ContactDisplay.class));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Colors colors = new Colors();
+
+        getSupportActionBar().setBackgroundDrawable(colors.getActionBarColor());
+
+        Window window = getWindow();
+
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        window.setStatusBarColor(ContextCompat.getColor(this, colors.getSatusBarColor()));
     }
 
     @Override
@@ -61,6 +84,8 @@ public class ContactsActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         } else if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 
