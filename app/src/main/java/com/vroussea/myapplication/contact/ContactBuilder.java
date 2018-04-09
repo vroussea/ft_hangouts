@@ -1,5 +1,6 @@
 package com.vroussea.myapplication.contact;
 
+import android.graphics.Bitmap;
 import android.widget.ImageView;
 
 final public class ContactBuilder {
@@ -8,7 +9,7 @@ final public class ContactBuilder {
     private String phoneNumber;
     private String eMail;
     private String nickname;
-    private int profilePic;
+    private Bitmap profilePic;
 
     private ContactBuilder() {
     }
@@ -42,7 +43,7 @@ final public class ContactBuilder {
         return this;
     }
 
-    public ContactBuilder withProfilePic(int profilePic) {
+    public ContactBuilder withProfilePic(Bitmap profilePic) {
         this.profilePic = profilePic;
         return this;
     }
@@ -54,7 +55,7 @@ final public class ContactBuilder {
         contact.setPhoneNumber(phoneNumber);
         contact.setEMail(eMail);
         contact.setNickname(nickname);
-        contact.setProfilePic(profilePic);
+        contact.setPicture(profilePic);
         return contact;
     }
 }

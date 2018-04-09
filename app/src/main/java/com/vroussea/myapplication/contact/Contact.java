@@ -3,6 +3,7 @@ package com.vroussea.myapplication.contact;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.graphics.Bitmap;
 import android.os.Parcelable;
 import android.widget.ImageView;
 
@@ -23,11 +24,9 @@ public class Contact implements Serializable {
     private String eMail;
     private String nickname;
 
-    private int profilePic;
+    private Bitmap picture;
 
-    public Contact() {
-        profilePic = 0;
-    }
+    public Contact() {}
 
     public int get_id() {
         return _id;
@@ -77,11 +76,11 @@ public class Contact implements Serializable {
         this.nickname = nickname;
     }
 
-    public int getProfilePic() {
-        return profilePic;
+    public Bitmap getPicture() {
+        return picture;
     }
 
-    public void setProfilePic(int profilePic) {
-        this.profilePic = profilePic;
+    public void setPicture(Bitmap profilePic) {
+        this.picture = profilePic;
     }
 }

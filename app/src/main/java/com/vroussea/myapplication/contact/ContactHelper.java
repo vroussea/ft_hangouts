@@ -3,6 +3,8 @@ package com.vroussea.myapplication.contact;
 import android.app.Activity;
 
 import com.vroussea.myapplication.App;
+import com.vroussea.myapplication.contact.database.ContactDao;
+import com.vroussea.myapplication.contact.database.ContactDbHelper;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -13,14 +15,14 @@ import java.util.concurrent.Future;
 
 public class ContactHelper extends Activity {
 
-    private ContactDao mDao = ContactDatabase.getDatabase(App.getContext()).contactDao();
+    private ContactDao mDao = new ContactDao(new ContactDbHelper(App.getContext()));
 
     public List<Contact> getContacts() throws ExecutionException, InterruptedException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Callable<List<Contact>> callable = new Callable<List<Contact>>() {
             @Override
             public List<Contact> call() {
-                return mDao.loadAllContacts();
+                return mDao.querryAll();
             }
         };
         Future<List<Contact>> future = executor.submit(callable);
@@ -34,7 +36,7 @@ public class ContactHelper extends Activity {
         Callable<Contact> callable = new Callable<Contact>() {
             @Override
             public Contact call() {
-                return mDao.findContactById(id);
+                return mDao.querryOne(id);
             }
         };
         Future<Contact> future = executor.submit(callable);
@@ -57,7 +59,7 @@ public class ContactHelper extends Activity {
 
     public void removeContact(Contact contact) {
         new Thread(() -> {
-            mDao.delete(contact);
+            mDao.delete(contact.get_id());
         }).start();
     }
 }

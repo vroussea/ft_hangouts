@@ -106,6 +106,7 @@ public class ContactsActivity extends AppCompatActivity {
         final ContactAdapter adapter = new ContactAdapter(this, contacts);
         listview.setAdapter(adapter);
 
+
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view,

@@ -5,7 +5,6 @@ import android.app.Application;
 import android.arch.persistence.room.Room;
 import android.widget.Toast;
 
-import com.vroussea.myapplication.contact.ContactDatabase;
 import com.vroussea.myapplication.handlers.AppLifecycleHandler;
 import com.vroussea.myapplication.handlers.LifecycleDelegate;
 
@@ -25,8 +24,6 @@ public class App extends Application implements LifecycleDelegate {
         super.onCreate();
 
         myContext = this;
-
-        ContactDatabase mDb = Room.databaseBuilder(getApplicationContext(), ContactDatabase.class, "contacts").build();
 
         AppLifecycleHandler lifeCycleHandler = new AppLifecycleHandler(this);
         registerLifecycleHandler(lifeCycleHandler);
