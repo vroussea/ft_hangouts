@@ -23,4 +23,5 @@
     <string name="black_color">noir</string>
     <string name="darkBlue_color">bleu marine</string>
     <string name="title_activity_settings">Paramètres</string>
+    <string name="needPermission">ft_hangouts demande la permission pour gallerie</string>
 </resources>

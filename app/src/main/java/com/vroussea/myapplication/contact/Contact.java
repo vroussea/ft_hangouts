@@ -26,7 +26,9 @@ public class Contact implements Serializable {
 
     private Bitmap picture;
 
-    public Contact() {}
+    public Contact() {
+        picture = null;
+    }
 
     public int get_id() {
         return _id;

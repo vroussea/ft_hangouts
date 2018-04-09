@@ -1,5 +1,6 @@
 package com.vroussea.myapplication.activities;
 
+import android.Manifest;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -7,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -16,13 +18,16 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.vroussea.myapplication.App;
 import com.vroussea.myapplication.R;
 import com.vroussea.myapplication.contact.Contact;
 import com.vroussea.myapplication.contact.ContactBuilder;
 import com.vroussea.myapplication.contact.ContactHelper;
 import com.vroussea.myapplication.utils.Colors;
 
-public class ContactEdit extends AppCompatActivity {
+import pub.devrel.easypermissions.EasyPermissions;
+
+public class ContactEdit extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     ContactHelper contactHelper = new ContactHelper();
 
     Contact contact;
@@ -30,6 +35,8 @@ public class ContactEdit extends AppCompatActivity {
     final int REQ_CODE_PICK_IMAGE = 1;
 
     ImageView picture;
+
+    private Bitmap yourSelectedImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +53,18 @@ public class ContactEdit extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, REQ_CODE_PICK_IMAGE);
+                String[] galleryPermissions = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+                if (EasyPermissions.hasPermissions(App.getContext(), galleryPermissions)) {
+                    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                    photoPickerIntent.setType("image/*");
+                    startActivityForResult(photoPickerIntent, REQ_CODE_PICK_IMAGE);
+                    if (yourSelectedImage != null)
+                        picture.setImageBitmap(yourSelectedImage);
+                } else {
+                    EasyPermissions.requestPermissions(this, getString(R.string.needPermission),
+                            101, galleryPermissions);
+                }
             }
 
         });
@@ -57,6 +73,8 @@ public class ContactEdit extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+
+        picture.setImageResource(R.drawable.no_picture);
 
         Colors colors = new Colors();
 
@@ -157,6 +175,9 @@ public class ContactEdit extends AppCompatActivity {
 
         eMail.getText().clear();
         eMail.getText().append(contact.getEMail());
+
+        if (contact.getPicture() != null)
+            picture.setImageBitmap(contact.getPicture());
     }
 
     protected void onActivityResult(int requestCode, int resultCode,
@@ -178,7 +199,10 @@ public class ContactEdit extends AppCompatActivity {
                     cursor.close();
 
 
-                    Bitmap yourSelectedImage = BitmapFactory.decodeFile(filePath);
+                    yourSelectedImage = BitmapFactory.decodeFile(filePath);
+                }
+                else {
+                    yourSelectedImage = null;
                 }
         }
     }

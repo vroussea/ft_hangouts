@@ -106,4 +106,5 @@
     <string name="green" translatable="false">green</string>
     <string name="yellow" translatable="false">yellow</string>
     <string name="black" translatable="false">black</string>
+    <string name="needPermission">ft_hangouts asks for permission to gallery</string>
 </resources>
