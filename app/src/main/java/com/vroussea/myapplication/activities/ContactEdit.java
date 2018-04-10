@@ -2,12 +2,14 @@ package com.vroussea.myapplication.activities;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -56,14 +58,9 @@ public class ContactEdit extends AppCompatActivity implements ActivityCompat.OnR
                 String[] galleryPermissions = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
                 if (EasyPermissions.hasPermissions(App.getContext(), galleryPermissions)) {
-                    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                    photoPickerIntent.setType("image/*");
-                    startActivityForResult(photoPickerIntent, REQ_CODE_PICK_IMAGE);
-                    if (yourSelectedImage != null)
-                        picture.setImageBitmap(yourSelectedImage);
+                    setPicture();
                 } else {
-                    EasyPermissions.requestPermissions(this, getString(R.string.needPermission),
-                            101, galleryPermissions);
+                    ActivityCompat.requestPermissions(ContactEdit.this, galleryPermissions, REQ_CODE_PICK_IMAGE);
                 }
             }
 
@@ -200,10 +197,33 @@ public class ContactEdit extends AppCompatActivity implements ActivityCompat.OnR
 
 
                     yourSelectedImage = BitmapFactory.decodeFile(filePath);
+                    int i = 0;
                 }
                 else {
                     yourSelectedImage = null;
                 }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults)
+    {
+        switch (requestCode) {
+            case REQ_CODE_PICK_IMAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    setPicture();
+                }
+                break;
+        }
+    }
+
+    public void setPicture() {
+        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+        photoPickerIntent.setType("image/*");
+        startActivityForResult(photoPickerIntent, REQ_CODE_PICK_IMAGE);
+        if (yourSelectedImage != null) {
+            picture.setImageDrawable(null);
+            picture.setImageBitmap(yourSelectedImage);
         }
     }
 }
