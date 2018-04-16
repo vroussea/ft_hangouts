@@ -2,4 +2,30 @@
 <resources>
     <string name="edit_message">Entrer un message</string>
     <string name="button_send">Envoyer</string>
+    <string name="action_settings">Paramètres</string>
+    <string name="action_add_contact">Ajouter un nouveau contact</string>
+    <string name="first_name">Prénom</string>
+    <string name="last_name">Nom</string>
+    <string name="nickname">Surnom</string>
+    <string name="title_activity_contact_edit">Éditer Contact</string>
+    <string name="phone_number">Téléphone</string>
+    <string name="save_button">Enregistrer</string>
+    <string name="action_edit_contact">Éditer contact</string>
+    <string name="action_delete_contact">Supprimer contact</string>
+    <string name="delete_alert">Voulez-vous vraiment supprimer ce contact ?</string>
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
+    <string name="empty_contact_list">La liste des contacts est vide</string>
+    <string name="empty_field">Vide</string>
+    <string name="pref_color">Couleur des menus</string>
+    <string name="blue_color">bleu</string>
+    <string name="red_color">rouge</string>
+    <string name="green_color">vert</string>
+    <string name="yellow_color">jaune</string>
+    <string name="black_color">noir</string>
+    <string name="darkBlue_color">bleu marine</string>
+    <string name="title_activity_settings">Paramètres</string>
+    <string name="needPermission">ft_hangouts demande la permission pour gallerie</string>
+    <string name="pick_image_intent_text">choisir image avec</string>
+    <string name="permissionsNotGranted">ft_hangouts a besoin de permissions pour ça</string>
 </resources>

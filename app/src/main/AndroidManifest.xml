@@ -3,7 +3,9 @@
     package="com.vroussea.myapplication">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
     <application
         android:name=".App"
@@ -48,12 +50,12 @@
                 android:value=".activities.ContactsActivity" />
         </activity>
         <activity
-            android:name=".TextActivity"
-            android:label="@string/title_activity_text"
-            android:parentActivityName=".activities.ContactDisplay">
+            android:name=".activities.TextActivity"
+            android:label="@string/sms_title"
+            android:parentActivityName=".activities.ContactsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.ContactDisplay" />
+                android:value=".activities.ContactsActivity" />
         </activity>
     </application>
 

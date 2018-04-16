@@ -28,6 +28,7 @@ import com.vroussea.myapplication.contact.ContactHelper;
 import com.vroussea.myapplication.utils.BitmapToBytes;
 import com.vroussea.myapplication.utils.Colors;
 import com.vroussea.myapplication.utils.ImagePicker;
+import com.vroussea.myapplication.utils.PhoneNumberPrefix;
 
 public class ContactEdit extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -116,10 +117,6 @@ public class ContactEdit extends AppCompatActivity implements ActivityCompat.OnR
         if (id == android.R.id.home) {
             onBackPressed();
             return true;
-        } else if (id == R.id.action_settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-            return true;
         }
         return super.onOptionsItemSelected(item);
 
@@ -146,7 +143,7 @@ public class ContactEdit extends AppCompatActivity implements ActivityCompat.OnR
                     .withFirstName(firstName)
                     .withLastName(lastName)
                     .withNickname(nickname)
-                    .withPhoneNumber(phoneNumber)
+                    .withPhoneNumber(PhoneNumberPrefix.removePrefix(phoneNumber))
                     .withEMail(eMail)
                     .withProfilePic(null)
                     .withProfilePic(BitmapToBytes.getBytes(bitmap)).build();
@@ -166,7 +163,7 @@ public class ContactEdit extends AppCompatActivity implements ActivityCompat.OnR
             contact.setFirstName(firstName);
             contact.setLastName(lastName);
             contact.setNickname(nickname);
-            contact.setPhoneNumber(phoneNumber);
+            contact.setPhoneNumber(PhoneNumberPrefix.removePrefix(phoneNumber));
             contact.setEMail(eMail);
             contact.setPicture(BitmapToBytes.getBytes(bitmap));
 

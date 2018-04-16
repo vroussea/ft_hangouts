@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -48,13 +49,21 @@ public class ContactDisplay extends AppCompatActivity {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
         window.setStatusBarColor(ContextCompat.getColor(this, colors.getSatusBarColor()));
+
+        displayContactData();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
+            case R.id.action_sms_contact:
+                intent = new Intent(this, TextActivity.class);
+                intent.putExtra("contactId", currentContact.get_id());
+                startActivity(intent);
+                return true;
             case R.id.action_edit_contact:
-                Intent intent = new Intent(this, ContactEdit.class);
+                intent = new Intent(this, ContactEdit.class);
                 intent.putExtra("isCreating", false);
                 intent.putExtra("contactId", currentContact.get_id());
                 new Thread(new Runnable() {
@@ -91,29 +100,35 @@ public class ContactDisplay extends AppCompatActivity {
         setContentView(R.layout.activity_contact_display);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        setContentView(R.layout.activity_contact_display);
-
+    private void displayContactData() {
         try {
             currentContact = contactHelper.getContactById((int) getIntent().getSerializableExtra("contact"));
         } catch (Exception e) {
+            Log.d("errorDisplayContact", e.getMessage());
         }
 
-        displayContactData();
-    }
-
-    private void displayContactData() {
         ImageView picture = findViewById(R.id.picture);
 
         if (currentContact.getPicture() != null)
             picture.setImageBitmap(BitmapToBytes.getImage(currentContact.getPicture()));
-        append(findViewById(R.id.first_name), currentContact.getFirstName());
-        append(findViewById(R.id.last_name), currentContact.getLastName());
-        append(findViewById(R.id.nickname), currentContact.getNickname());
-        append(findViewById(R.id.phone_number), currentContact.getPhoneNumber());
-        append(findViewById(R.id.eMail), currentContact.getEMail());
+
+        TextView first_name = getTextView(R.id.first_name, R.string.first_name);
+        TextView last_name = getTextView(R.id.last_name, R.string.last_name);
+        TextView nickname = getTextView(R.id.nickname, R.string.nickname);
+        TextView phone_number = getTextView(R.id.phone_number, R.string.phone_number);
+        TextView eMail = getTextView(R.id.eMail, R.string.eMail);
+
+        append(first_name, currentContact.getFirstName());
+        append(last_name, currentContact.getLastName());
+        append(nickname, currentContact.getNickname());
+        append(phone_number, currentContact.getPhoneNumber());
+        append(eMail, currentContact.getEMail());
+    }
+
+    private TextView getTextView(int textId, int stringId) {
+        TextView textView = findViewById(textId);
+        textView.setText(getString(stringId));
+        return textView;
     }
 
     private void append(TextView textView, String text) {
