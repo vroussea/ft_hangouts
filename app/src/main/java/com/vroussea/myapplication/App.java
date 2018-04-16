@@ -2,7 +2,6 @@ package com.vroussea.myapplication;
 
 
 import android.app.Application;
-import android.arch.persistence.room.Room;
 import android.widget.Toast;
 
 import com.vroussea.myapplication.handlers.AppLifecycleHandler;

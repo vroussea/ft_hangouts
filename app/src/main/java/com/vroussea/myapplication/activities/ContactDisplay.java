@@ -11,11 +11,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.vroussea.myapplication.R;
 import com.vroussea.myapplication.contact.Contact;
 import com.vroussea.myapplication.contact.ContactHelper;
+import com.vroussea.myapplication.utils.BitmapToBytes;
 import com.vroussea.myapplication.utils.Colors;
 
 public class ContactDisplay extends AppCompatActivity {
@@ -50,25 +52,22 @@ public class ContactDisplay extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
         switch (item.getItemId()) {
             case R.id.action_edit_contact:
                 Intent intent = new Intent(this, ContactEdit.class);
                 intent.putExtra("isCreating", false);
-                intent.putExtra("contact", currentContact);
-                startActivity(intent);
+                intent.putExtra("contactId", currentContact.get_id());
+                new Thread(new Runnable() {
+                    public void run() {
+                        startActivity(intent);
+                    }
+                }).start();
                 return true;
             case R.id.action_settings:
                 intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
             case R.id.action_delete_contact:
-//                contactHelper.removeContact(currentContact);
-//                finish();
-
                 new AlertDialog.Builder(this)
                         .setMessage(R.string.delete_alert)
                         .setCancelable(false)
@@ -100,13 +99,16 @@ public class ContactDisplay extends AppCompatActivity {
         try {
             currentContact = contactHelper.getContactById((int) getIntent().getSerializableExtra("contact"));
         } catch (Exception e) {
-
         }
 
         displayContactData();
     }
 
     private void displayContactData() {
+        ImageView picture = findViewById(R.id.picture);
+
+        if (currentContact.getPicture() != null)
+            picture.setImageBitmap(BitmapToBytes.getImage(currentContact.getPicture()));
         append(findViewById(R.id.first_name), currentContact.getFirstName());
         append(findViewById(R.id.last_name), currentContact.getLastName());
         append(findViewById(R.id.nickname), currentContact.getNickname());

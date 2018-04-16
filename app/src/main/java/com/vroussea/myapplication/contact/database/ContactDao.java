@@ -1,10 +1,5 @@
 package com.vroussea.myapplication.contact.database;
 
-import android.arch.persistence.room.Delete;
-import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.OnConflictStrategy;
-import android.arch.persistence.room.Query;
-import android.arch.persistence.room.Update;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -18,8 +13,8 @@ import java.util.List;
 
 public class ContactDao {
 
-    SQLiteDatabase writeDatabase;
-    SQLiteDatabase readDatabase;
+    private SQLiteDatabase writeDatabase;
+    private SQLiteDatabase readDatabase;
 
     public ContactDao(SQLiteOpenHelper databaseHelper) {
         writeDatabase = databaseHelper.getWritableDatabase();
@@ -33,6 +28,7 @@ public class ContactDao {
         values.put(ContactEntry.COLUMN_EMAIL, contact.getEMail());
         values.put(ContactEntry.COLUMN_NICKNAME, contact.getNickname());
         values.put(ContactEntry.COLUMN_PHONENUMBER, contact.getPhoneNumber());
+        values.put(ContactEntry.COLUMN_PICTURE, contact.getPicture());
 
         writeDatabase.insert(ContactEntry.TABLE_NAME, null, values);
     }
@@ -46,6 +42,7 @@ public class ContactDao {
             contact.set_id(cursor.getInt(cursor.getColumnIndexOrThrow(ContactEntry._ID)));
             contact.setFirstName(cursor.getString(cursor.getColumnIndexOrThrow(ContactEntry.COLUMN_FIRSTNAME)));
             contact.setPhoneNumber(cursor.getString(cursor.getColumnIndexOrThrow(ContactEntry.COLUMN_PHONENUMBER)));
+            contact.setPicture(cursor.getBlob(cursor.getColumnIndexOrThrow(ContactEntry.COLUMN_PICTURE)));
             contacts.add(contact);
         }
         cursor.close();
@@ -65,6 +62,7 @@ public class ContactDao {
         contact.setNickname(cursor.getString(cursor.getColumnIndexOrThrow(ContactEntry.COLUMN_NICKNAME)));
         contact.setPhoneNumber(cursor.getString(cursor.getColumnIndexOrThrow(ContactEntry.COLUMN_PHONENUMBER)));
         contact.setEMail(cursor.getString(cursor.getColumnIndexOrThrow(ContactEntry.COLUMN_EMAIL)));
+        contact.setPicture(cursor.getBlob(cursor.getColumnIndexOrThrow(ContactEntry.COLUMN_PICTURE)));
 
         cursor.close();
 
@@ -82,7 +80,8 @@ public class ContactDao {
         values.put(ContactEntry.COLUMN_EMAIL, contact.getEMail());
         values.put(ContactEntry.COLUMN_NICKNAME, contact.getNickname());
         values.put(ContactEntry.COLUMN_PHONENUMBER, contact.getPhoneNumber());
+        values.put(ContactEntry.COLUMN_PICTURE, contact.getPicture());
 
-        writeDatabase.update(ContactEntry.TABLE_NAME, values, ContactEntry._ID + " = ?", new String[] { String.valueOf(contact.get_id()) });
+        writeDatabase.update(ContactEntry.TABLE_NAME, values, ContactEntry._ID + " = ?", new String[]{String.valueOf(contact.get_id())});
     }
 }

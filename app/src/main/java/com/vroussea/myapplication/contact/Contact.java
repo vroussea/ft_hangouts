@@ -1,30 +1,15 @@
 package com.vroussea.myapplication.contact;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
-import android.graphics.Bitmap;
-import android.os.Parcelable;
-import android.widget.ImageView;
-
 import java.io.Serializable;
 
-@Entity(tableName = "contacts")
 public class Contact implements Serializable {
-    @PrimaryKey(autoGenerate = true)
-    private int  _id;
-
-    @ColumnInfo(name = "first_name")
+    private int _id;
     private String firstName;
-    @ColumnInfo(name = "last_name")
     private String lastName;
-
-    @ColumnInfo(name = "phone_number")
     private String phoneNumber;
     private String eMail;
     private String nickname;
-
-    private Bitmap picture;
+    private byte[] picture;
 
     public Contact() {
         picture = null;
@@ -78,11 +63,11 @@ public class Contact implements Serializable {
         this.nickname = nickname;
     }
 
-    public Bitmap getPicture() {
+    public byte[] getPicture() {
         return picture;
     }
 
-    public void setPicture(Bitmap profilePic) {
+    public void setPicture(byte[] profilePic) {
         this.picture = profilePic;
     }
 }

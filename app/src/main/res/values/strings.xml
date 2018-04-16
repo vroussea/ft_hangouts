@@ -107,4 +107,7 @@
     <string name="yellow" translatable="false">yellow</string>
     <string name="black" translatable="false">black</string>
     <string name="needPermission">ft_hangouts asks for permission to gallery</string>
+    <string name="pick_image_intent_text">choose image from</string>
+    <string name="permissionsNotGranted">ft_hangouts need permissions for that</string>
+    <string name="title_activity_text">SMS</string>
 </resources>

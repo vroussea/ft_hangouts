@@ -24,4 +24,6 @@
     <string name="darkBlue_color">bleu marine</string>
     <string name="title_activity_settings">Paramètres</string>
     <string name="needPermission">ft_hangouts demande la permission pour gallerie</string>
+    <string name="pick_image_intent_text">choisir image avec</string>
+    <string name="permissionsNotGranted">ft_hangouts a besoin de permissions pour ça</string>
 </resources>

@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -45,6 +46,14 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.ContactsActivity" />
+        </activity>
+        <activity
+            android:name=".TextActivity"
+            android:label="@string/title_activity_text"
+            android:parentActivityName=".activities.ContactDisplay">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.ContactDisplay" />
         </activity>
     </application>
 

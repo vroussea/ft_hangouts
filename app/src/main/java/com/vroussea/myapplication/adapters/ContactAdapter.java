@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.vroussea.myapplication.R;
 import com.vroussea.myapplication.contact.Contact;
+import com.vroussea.myapplication.utils.BitmapToBytes;
 
 import java.util.List;
 
@@ -34,13 +35,12 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
         // retrieve fields in contact view
         TextView firstName = rowView.findViewById(R.id.firstLine);
         TextView phonenumber = rowView.findViewById(R.id.secondLine);
-        //ImageView imageView = rowView.findViewById(R.id.icon);
+        ImageView picture = rowView.findViewById(R.id.icon);
 
 
         firstName.setText(contacts.get(position).getFirstName());
         phonenumber.setText(contacts.get(position).getPhoneNumber());
-        //imageView = contacts.get(position).getProfilePic();
-
+        picture.setImageBitmap(BitmapToBytes.getImage(contacts.get(position).getPicture()));
 
 
         return rowView;
