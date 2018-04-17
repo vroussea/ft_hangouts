@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -16,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -27,6 +29,7 @@ import com.vroussea.myapplication.contact.ContactBuilder;
 import com.vroussea.myapplication.contact.ContactHelper;
 import com.vroussea.myapplication.utils.BitmapToBytes;
 import com.vroussea.myapplication.utils.Colors;
+import com.vroussea.myapplication.utils.GenericTextWatcher;
 import com.vroussea.myapplication.utils.ImagePicker;
 import com.vroussea.myapplication.utils.PhoneNumberPrefix;
 
@@ -40,15 +43,42 @@ public class ContactEdit extends AppCompatActivity implements ActivityCompat.OnR
     private ImageView picture;
     private Bitmap bitmap;
 
+    private String firstName;
+    private String lastName;
+    private String nickname;
+    private String phoneNumber;
+    private String eMail;
+
+    private EditText firstNameText;
+    private EditText lastNameText;
+    private EditText nicknameText;
+    private EditText phoneNumberText;
+    private EditText eMailText;
+
+    private boolean isDataOk;
+    Button submit_contact;
+
+    private final static String phoneNumberRegex = "(\\+33|0)[1-9][0-9]{8}";
+    private final static String firstnameRegex = "[A-Z][a-z]{2,15}[ -][A-Z][a-z]{2,15}|[A-Z][a-z]{2,15}";
+    private final static String nameRegex = "[A-Z][a-z]{2,15}[ -][A-Z][a-z]{2,15}|[A-Z][a-z]{2,15}";
+    private final static String mailRegex = "\\w+@.{1,10}\\.(com|fr|net|be|uk|org|us|gov|pro)";
+    private final static String emptyRegex = ".{0}";
+    private final static String orRegex = "|";
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact_edit);
 
+        isDataOk = false;
+        submit_contact = findViewById(R.id.submit_contact);
+
         picture = findViewById(R.id.picture);
 
         bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.no_picture);
         picture.setImageBitmap(bitmap);
+
+        initListeners();
 
         if (!getIntent().getBooleanExtra("isCreating", true)) {
             appendContactData();
@@ -123,52 +153,38 @@ public class ContactEdit extends AppCompatActivity implements ActivityCompat.OnR
     }
 
     public void onSubmitContact(View view) {
-        if (getIntent().getBooleanExtra("isCreating", true)) {
-            onCreateContact();
-        } else {
-            onEditContact();
+        if (isDataOk) {
+            if (getIntent().getBooleanExtra("isCreating", true)) {
+                onCreateContact();
+            } else {
+                onEditContact();
+            }
+            finish();
         }
-        finish();
     }
 
     private void onCreateContact() {
-        String firstName = ((EditText) findViewById(R.id.first_name)).getText().toString();
-        String lastName = ((EditText) findViewById(R.id.last_name)).getText().toString();
-        String nickname = ((EditText) findViewById(R.id.nickname)).getText().toString();
-        String phoneNumber = ((EditText) findViewById(R.id.phone_number)).getText().toString();
-        String eMail = ((EditText) findViewById(R.id.eMail)).getText().toString();
+        Contact newContact = ContactBuilder.aContact()
+                .withFirstName(firstName)
+                .withLastName(lastName)
+                .withNickname(nickname)
+                .withPhoneNumber(PhoneNumberPrefix.removePrefix(phoneNumber))
+                .withEMail(eMail)
+                .withProfilePic(null)
+                .withProfilePic(BitmapToBytes.getBytes(bitmap)).build();
 
-        if (!phoneNumber.equals("") && !firstName.equals("")) {
-            Contact newContact = ContactBuilder.aContact()
-                    .withFirstName(firstName)
-                    .withLastName(lastName)
-                    .withNickname(nickname)
-                    .withPhoneNumber(PhoneNumberPrefix.removePrefix(phoneNumber))
-                    .withEMail(eMail)
-                    .withProfilePic(null)
-                    .withProfilePic(BitmapToBytes.getBytes(bitmap)).build();
-
-            contactHelper.addContact(newContact);
-        }
+        contactHelper.addContact(newContact);
     }
 
     private void onEditContact() {
-        String firstName = ((EditText) findViewById(R.id.first_name)).getText().toString();
-        String lastName = ((EditText) findViewById(R.id.last_name)).getText().toString();
-        String nickname = ((EditText) findViewById(R.id.nickname)).getText().toString();
-        String phoneNumber = ((EditText) findViewById(R.id.phone_number)).getText().toString();
-        String eMail = ((EditText) findViewById(R.id.eMail)).getText().toString();
+        contact.setFirstName(firstName);
+        contact.setLastName(lastName);
+        contact.setNickname(nickname);
+        contact.setPhoneNumber(PhoneNumberPrefix.removePrefix(phoneNumber));
+        contact.setEMail(eMail);
+        contact.setPicture(BitmapToBytes.getBytes(bitmap));
 
-        if (!phoneNumber.equals("") && !firstName.equals("")) {
-            contact.setFirstName(firstName);
-            contact.setLastName(lastName);
-            contact.setNickname(nickname);
-            contact.setPhoneNumber(PhoneNumberPrefix.removePrefix(phoneNumber));
-            contact.setEMail(eMail);
-            contact.setPicture(BitmapToBytes.getBytes(bitmap));
-
-            contactHelper.updateContact(contact);
-        }
+        contactHelper.updateContact(contact);
     }
 
     private void appendContactData() {
@@ -204,6 +220,27 @@ public class ContactEdit extends AppCompatActivity implements ActivityCompat.OnR
         }
     }
 
+    public void checkAllData() {
+        firstName = ((EditText) findViewById(R.id.first_name)).getText().toString();
+        lastName = ((EditText) findViewById(R.id.last_name)).getText().toString();
+        nickname = ((EditText) findViewById(R.id.nickname)).getText().toString();
+        phoneNumber = ((EditText) findViewById(R.id.phone_number)).getText().toString();
+        eMail = ((EditText) findViewById(R.id.eMail)).getText().toString();
+
+        if (!phoneNumber.matches(phoneNumberRegex) |
+                !firstName.matches(firstnameRegex) |
+                !lastName.matches(nameRegex + orRegex + emptyRegex) |
+                !nickname.matches(nameRegex + orRegex + emptyRegex) |
+                !eMail.matches(mailRegex + orRegex + emptyRegex)) {
+            submit_contact.setTextColor(Color.RED);
+            isDataOk = false;
+        }
+        else {
+            submit_contact.setTextColor(Color.BLACK);
+            isDataOk = true;
+        }
+    }
+
     protected void onActivityResult(int requestCode, int resultCode,
                                     Intent data) {
         switch (requestCode) {
@@ -221,5 +258,19 @@ public class ContactEdit extends AppCompatActivity implements ActivityCompat.OnR
 
     public void setPicture() {
         startActivityForResult(ImagePicker.getPickImageIntent(App.getContext()), PICK_IMAGE_ID);
+    }
+
+    private void initListeners() {
+        firstNameText = findViewById(R.id.first_name);
+        lastNameText = findViewById(R.id.last_name);
+        nicknameText = findViewById(R.id.nickname);
+        phoneNumberText = findViewById(R.id.phone_number);
+        eMailText = findViewById(R.id.eMail);
+
+        firstNameText.addTextChangedListener(new GenericTextWatcher(this));
+        lastNameText.addTextChangedListener(new GenericTextWatcher(this));
+        nicknameText.addTextChangedListener(new GenericTextWatcher(this));
+        phoneNumberText.addTextChangedListener(new GenericTextWatcher(this));
+        eMailText.addTextChangedListener(new GenericTextWatcher(this));
     }
 }

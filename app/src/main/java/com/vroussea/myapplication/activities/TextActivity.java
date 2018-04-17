@@ -2,20 +2,15 @@ package com.vroussea.myapplication.activities;
 
 import android.Manifest;
 import android.content.ContentResolver;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
@@ -24,8 +19,11 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.vroussea.myapplication.R;
+import com.vroussea.myapplication.adapters.MessageAdapter;
 import com.vroussea.myapplication.contact.Contact;
 import com.vroussea.myapplication.contact.ContactHelper;
+import com.vroussea.myapplication.message.Message;
+import com.vroussea.myapplication.message.MessageBuilder;
 import com.vroussea.myapplication.utils.Colors;
 import com.vroussea.myapplication.utils.PhoneNumberPrefix;
 
@@ -38,7 +36,7 @@ public class TextActivity extends AppCompatActivity {
     private ArrayList<String> smsMessagesList = new ArrayList<>();
     private ListView messages;
     private EditText input;
-    private ArrayAdapter<String> arrayAdapter;
+    private MessageAdapter messageAdapter;
     private static final int READ_SMS_PERMISSIONS_REQUEST = 1;
     private Contact contact;
 
@@ -55,10 +53,10 @@ public class TextActivity extends AppCompatActivity {
 
         messages = findViewById(R.id.messages);
         input = findViewById(R.id.input);
-        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, smsMessagesList);
-        messages.setAdapter(arrayAdapter);
+        messageAdapter = new MessageAdapter(this, new ArrayList<>());
+        messages.setAdapter(messageAdapter);
         getPermissionToReadSMS();
-        messages.setSelection(arrayAdapter.getCount() - 1);
+        messages.setSelection(messageAdapter.getCount() - 1);
 
     }
 
@@ -121,13 +119,19 @@ public class TextActivity extends AppCompatActivity {
         ContentResolver contentResolver = getContentResolver();
         Cursor smsCursor = contentResolver.query(Uri.parse("content://sms"), null, "address = ?", address, "date");
         int indexBody = smsCursor.getColumnIndex("body");
-        int indexAddress = smsCursor.getColumnIndex("address");
+        int indexIsMe = smsCursor.getColumnIndex("type");
         if (indexBody < 0 || !smsCursor.moveToFirst()) return;
-        arrayAdapter.clear();
+        messageAdapter.clear();
+
+        String[] list = smsCursor.getColumnNames();
+
         do {
-            String str = "SMS From: " + smsCursor.getString(indexAddress) +
-                    "\n" + smsCursor.getString(indexBody) + "\n";
-            arrayAdapter.add(str);
+            boolean isMe = smsCursor.getInt(indexIsMe) == 2;
+            Message message = MessageBuilder.aMessage()
+                    .withSenderName(contact.getFirstName())
+                    .withText(smsCursor.getString(indexBody))
+                    .withMe(isMe).build();
+            messageAdapter.add(message);
         } while (smsCursor.moveToNext());
     }
 }

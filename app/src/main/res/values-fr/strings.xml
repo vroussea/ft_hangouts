@@ -3,4 +3,5 @@
     <string name="action_sms_contact">sms au contact</string>
     <string name="send">ENVOYER</string>
     <string name="Message">Entrer votre message ici</string>
+    <string name="me">Moi</string>
 </resources>
