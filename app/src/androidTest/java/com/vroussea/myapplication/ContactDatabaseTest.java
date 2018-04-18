@@ -1,6 +1,6 @@
 package com.vroussea.myapplication;
 
-import android.arch.persistence.room.Room;
+//import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 

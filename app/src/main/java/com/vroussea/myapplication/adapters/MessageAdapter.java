@@ -40,13 +40,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         boolean isMe = messages.get(position).getMe();
         if (isMe) {
-            firstLine.setText(App.getContext().getString(R.string.me));
+            firstLine.setText(App.getContext().getString(R.string.me) + " " + messages.get(position).getTime());
             secondLine.setText(messages.get(position).getText().trim());
             firstLine.setGravity(Gravity.END);
             secondLine.setGravity(Gravity.END);
         }
         else {
-            firstLine.setText(messages.get(position).getSenderName());
+            firstLine.setText(messages.get(position).getSenderName() + " " + messages.get(position).getTime());
             secondLine.setText(messages.get(position).getText().trim());
         }
 
