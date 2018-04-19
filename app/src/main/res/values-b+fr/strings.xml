@@ -10,8 +10,8 @@
     <string name="title_activity_contact_edit">Éditer Contact</string>
     <string name="phone_number">Téléphone</string>
     <string name="save_button">Enregistrer</string>
-    <string name="action_edit_contact">Éditer contact</string>
-    <string name="action_delete_contact">Supprimer contact</string>
+    <string name="action_edit_contact">Éditer le contact</string>
+    <string name="action_delete_contact">Supprimer le contact</string>
     <string name="delete_alert">Voulez-vous vraiment supprimer ce contact ?</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>

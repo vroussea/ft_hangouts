@@ -1,15 +1,16 @@
 package com.vroussea.myapplication.activities;
 
 import android.Manifest;
-import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
-import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Telephony;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -19,43 +20,38 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.vroussea.myapplication.App;
 import com.vroussea.myapplication.R;
 import com.vroussea.myapplication.adapters.MessageAdapter;
 import com.vroussea.myapplication.contact.Contact;
 import com.vroussea.myapplication.contact.ContactHelper;
+import com.vroussea.myapplication.listener.SMSReceiver;
 import com.vroussea.myapplication.message.Message;
 import com.vroussea.myapplication.message.MessageBuilder;
 import com.vroussea.myapplication.utils.Colors;
 import com.vroussea.myapplication.utils.PhoneNumberPrefix;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
-import static android.provider.Telephony.TextBasedSmsColumns.ADDRESS;
-import static android.provider.Telephony.TextBasedSmsColumns.BODY;
-import static android.provider.Telephony.TextBasedSmsColumns.READ;
-import static android.provider.Telephony.TextBasedSmsColumns.TYPE;
+import java.util.Date;
 
 public class TextActivity extends AppCompatActivity {
 
-    private final ContactHelper contactHelper = new ContactHelper();
+    private static final int READ_SMS_PERMISSIONS_REQUEST = 1;
+    private static final int SEND_SMS_PERMISSIONS_REQUEST = 2;
+    private static final int RECEIVE_SMS_PERMISSIONS_REQUEST = 3;
 
-    private ArrayList<String> smsMessagesList = new ArrayList<>();
+    private final static String emptyRegex = ".{0}";
+    private final ContactHelper contactHelper = new ContactHelper();
     private ListView messages;
     private EditText input;
     private MessageAdapter messageAdapter;
-    private static final int READ_SMS_PERMISSIONS_REQUEST = 1;
-    private static final int SEND_SMS_PERMISSIONS_REQUEST = 2;
-    private static final String SENT_SMS_FLAG = "sending sms flag";
-    private final static String emptyRegex = ".{0}";
     private Contact contact;
 
-    private final int METYPE = 2;
+    private BroadcastReceiver SMSReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,8 +69,15 @@ public class TextActivity extends AppCompatActivity {
         messageAdapter = new MessageAdapter(this, new ArrayList<>());
         messages.setAdapter(messageAdapter);
         getPermissionToReadSMS();
-        messages.setSelection(messageAdapter.getCount() - 1);
 
+        getPermissionToReceiveSMS();
+
+        SMSReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+               refreshSmsInbox();
+            }
+        };
     }
 
     @Override
@@ -82,15 +85,28 @@ public class TextActivity extends AppCompatActivity {
         super.onResume();
         Colors colors = new Colors();
 
+        IntentFilter filter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+        filter.setPriority(10000);
+
+        registerReceiver(SMSReceiver, filter);
+
         getSupportActionBar().setBackgroundDrawable(colors.getActionBarColor());
 
         Window window = getWindow();
+
+        refreshSmsInbox();
 
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
         window.setStatusBarColor(ContextCompat.getColor(this, colors.getSatusBarColor()));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(SMSReceiver);
     }
 
     @Override
@@ -101,6 +117,14 @@ public class TextActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void getPermissionToReceiveSMS() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.RECEIVE_SMS},
+                    RECEIVE_SMS_PERMISSIONS_REQUEST);
+        }
     }
 
     public void getPermissionToReadSMS() {
@@ -118,8 +142,7 @@ public class TextActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.SEND_SMS},
                     SEND_SMS_PERMISSIONS_REQUEST);
-        }
-        else {
+        } else {
             sendSMS();
         }
     }
@@ -128,36 +151,21 @@ public class TextActivity extends AppCompatActivity {
         String message = input.getText().toString();
         if (!message.matches(emptyRegex)) {
             try {
-                SmsManager smsManager = SmsManager.getDefault();
-                Intent intent = new Intent(SENT_SMS_FLAG);
-                Bundle values = new Bundle();
-                values.putString("body", message);
-                values.putString("address", contact.getPhoneNumber());
+                String contactNumber = contact.getPhoneNumber();
+                SmsManager.getDefault().sendTextMessage(contactNumber, null,
+                        message, null, null);
 
-                intent.putExtra("sms", values);
-
-                PendingIntent sentIntent = PendingIntent.getBroadcast(this, 0,
-                        intent, 0);
-
-                smsManager.sendTextMessage(contact.getPhoneNumber(), null,
-                        message, sentIntent, null);
-
-               /* SmsManager smsManager = SmsManager.getDefault();
-
-                PendingIntent piSent = PendingIntent.getBroadcast(this, 0, new Intent("SMS_SENT"), 0);
-
-                smsManager.sendTextMessage(
-                        contact.getPhoneNumber(),
-                        null,
-                        message,
-                        piSent,
-                        null);*/
-
-                Toast.makeText(getApplicationContext(), "Message Sent",
-                        Toast.LENGTH_LONG).show();
+                Long timeLong = System.currentTimeMillis()/1000;
+                String timeStamp = timeLong.toString();
 
                 input.getText().clear();
-                refreshSmsInbox();
+                messageAdapter.add(MessageBuilder.aMessage()
+                        .withMe(true)
+                        .withSenderName(contactNumber)
+                        .withText(message)
+                        .withTime(getDate(timeStamp)).build());
+                messageAdapter.notifyDataSetChanged();
+                messages.setSelection(messageAdapter.getCount() - 1);
             } catch (Exception ex) {
                 Toast.makeText(getApplicationContext(), ex.getMessage().toString(),
                         Toast.LENGTH_LONG).show();
@@ -178,10 +186,18 @@ public class TextActivity extends AppCompatActivity {
                 finish();
             }
 
-        } else if(requestCode == SEND_SMS_PERMISSIONS_REQUEST) {
+        } else if (requestCode == SEND_SMS_PERMISSIONS_REQUEST) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 refreshSmsInbox();
             } else {
+                Toast.makeText(this, R.string.permissionsNotGranted, Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        } else if (requestCode == RECEIVE_SMS_PERMISSIONS_REQUEST) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                refreshSmsInbox();
+            } else {
+                getPermissionToReceiveSMS();
                 Toast.makeText(this, R.string.permissionsNotGranted, Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -191,27 +207,33 @@ public class TextActivity extends AppCompatActivity {
     }
 
 
-
-    public void refreshSmsInbox() {
-        String[] address = {contact.getPhoneNumber()/*, PhoneNumberPrefix.addPrefix(contact.getPhoneNumber())*/};
+    private void refreshSmsInbox() {
+        final int MYTYPE = 2;
+        String[] address = {contact.getPhoneNumber(), PhoneNumberPrefix.addPrefix(contact.getPhoneNumber())};
 
         ContentResolver contentResolver = getContentResolver();
-        Cursor smsCursor = contentResolver.query(Uri.parse("content://sms"), null, "address = ?", address, "date");
+        Cursor smsCursor = contentResolver.query(Uri.parse("content://sms"), null, "address = ? or address = ?", address, "date");
         int indexBody = smsCursor.getColumnIndex("body");
         int indexIsMe = smsCursor.getColumnIndex("type");
+        int indexDate = smsCursor.getColumnIndex("date");
         if (indexBody < 0 || !smsCursor.moveToFirst()) return;
         messageAdapter.clear();
 
-        //TODO remove when finished
-        String[] list = smsCursor.getColumnNames();
-
         do {
-            boolean isMe = smsCursor.getInt(indexIsMe) == METYPE;
+            boolean isMe = smsCursor.getInt(indexIsMe) == MYTYPE;
             Message message = MessageBuilder.aMessage()
                     .withSenderName(contact.getFirstName())
                     .withText(smsCursor.getString(indexBody))
-                    .withMe(isMe).build();
+                    .withMe(isMe)
+                    .withTime(getDate(smsCursor.getString(indexDate))).build();
             messageAdapter.add(message);
         } while (smsCursor.moveToNext());
+        messageAdapter.notifyDataSetChanged();
+        messages.setSelection(messageAdapter.getCount() - 1);
+    }
+
+    private String getDate(String timeStamp) {
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+        return formatter.format(new Date(Long.parseLong(timeStamp)));
     }
 }

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="action_sms_contact">sms au contact</string>
+    <string name="action_sms_contact">Messagerie</string>
     <string name="send">ENVOYER</string>
     <string name="Message">Entrer votre message ici</string>
     <string name="me">Moi</string>
+    <string name="action_call_contact">Appeler le contact</string>
 </resources>

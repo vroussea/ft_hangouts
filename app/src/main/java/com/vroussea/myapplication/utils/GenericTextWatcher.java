@@ -2,9 +2,7 @@ package com.vroussea.myapplication.utils;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
 
-import com.vroussea.myapplication.R;
 import com.vroussea.myapplication.activities.ContactEdit;
 
 public class GenericTextWatcher implements TextWatcher {

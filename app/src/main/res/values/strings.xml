@@ -110,8 +110,9 @@
     <string name="pick_image_intent_text">choose image from</string>
     <string name="permissionsNotGranted">ft_hangouts need permissions for that</string>
     <string name="sms_title" translatable="false">SMS</string>
-    <string name="action_sms_contact">sms to contact</string>
+    <string name="action_sms_contact">Sms to contact</string>
     <string name="send">SEND</string>
     <string name="Message">Enter message here</string>
     <string name="me">Me</string>
+    <string name="action_call_contact">Call contact</string>
 </resources>

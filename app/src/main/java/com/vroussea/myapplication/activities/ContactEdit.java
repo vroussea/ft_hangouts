@@ -35,35 +35,31 @@ import com.vroussea.myapplication.utils.PhoneNumberPrefix;
 
 public class ContactEdit extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
-    private final int PICK_IMAGE_ID = 101;
-    private final int REQUEST_WRITE_EXTERNAL_STORAGE = 1;
-    private Activity thisActivity = this;
-    private ContactHelper contactHelper = new ContactHelper();
-    private Contact contact;
-    private ImageView picture;
-    private Bitmap bitmap;
-
-    private String firstName;
-    private String lastName;
-    private String nickname;
-    private String phoneNumber;
-    private String eMail;
-
-    private EditText firstNameText;
-    private EditText lastNameText;
-    private EditText nicknameText;
-    private EditText phoneNumberText;
-    private EditText eMailText;
-
-    private boolean isDataOk;
-    Button submit_contact;
-
     private final static String phoneNumberRegex = "(\\+33|0)[1-9][0-9]{8}";
     private final static String firstnameRegex = "[A-Z][a-z]{2,15}[ -][A-Z][a-z]{2,15}|[A-Z][a-z]{2,15}";
     private final static String nameRegex = "[A-Z][a-z]{2,15}[ -][A-Z][a-z]{2,15}|[A-Z][a-z]{2,15}";
     private final static String mailRegex = "\\w+@.{1,10}\\.(com|fr|net|be|uk|org|us|gov|pro)";
     private final static String emptyRegex = ".{0}";
     private final static String orRegex = "|";
+    private final int PICK_IMAGE_ID = 101;
+    private final int REQUEST_WRITE_EXTERNAL_STORAGE = 1;
+    Button submit_contact;
+    private Activity thisActivity = this;
+    private ContactHelper contactHelper = new ContactHelper();
+    private Contact contact;
+    private ImageView picture;
+    private Bitmap bitmap;
+    private String firstName;
+    private String lastName;
+    private String nickname;
+    private String phoneNumber;
+    private String eMail;
+    private EditText firstNameText;
+    private EditText lastNameText;
+    private EditText nicknameText;
+    private EditText phoneNumberText;
+    private EditText eMailText;
+    private boolean isDataOk;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -234,8 +230,7 @@ public class ContactEdit extends AppCompatActivity implements ActivityCompat.OnR
                 !eMail.matches(mailRegex + orRegex + emptyRegex)) {
             submit_contact.setTextColor(Color.RED);
             isDataOk = false;
-        }
-        else {
+        } else {
             submit_contact.setTextColor(Color.BLACK);
             isDataOk = true;
         }

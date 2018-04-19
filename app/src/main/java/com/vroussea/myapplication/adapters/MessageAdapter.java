@@ -6,16 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.vroussea.myapplication.App;
 import com.vroussea.myapplication.R;
-import com.vroussea.myapplication.contact.Contact;
 import com.vroussea.myapplication.message.Message;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MessageAdapter extends ArrayAdapter<Message> {
     private final Context context;
@@ -44,8 +41,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             secondLine.setText(messages.get(position).getText().trim());
             firstLine.setGravity(Gravity.END);
             secondLine.setGravity(Gravity.END);
-        }
-        else {
+        } else {
             firstLine.setText(messages.get(position).getSenderName() + " " + messages.get(position).getTime());
             secondLine.setText(messages.get(position).getText().trim());
         }
