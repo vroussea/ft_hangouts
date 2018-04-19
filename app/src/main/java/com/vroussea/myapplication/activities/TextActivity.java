@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Telephony;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -28,7 +27,6 @@ import com.vroussea.myapplication.R;
 import com.vroussea.myapplication.adapters.MessageAdapter;
 import com.vroussea.myapplication.contact.Contact;
 import com.vroussea.myapplication.contact.ContactHelper;
-import com.vroussea.myapplication.listener.SMSReceiver;
 import com.vroussea.myapplication.message.Message;
 import com.vroussea.myapplication.message.MessageBuilder;
 import com.vroussea.myapplication.utils.Colors;
@@ -75,7 +73,7 @@ public class TextActivity extends AppCompatActivity {
         SMSReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-               refreshSmsInbox();
+                refreshSmsInbox();
             }
         };
     }
@@ -155,7 +153,7 @@ public class TextActivity extends AppCompatActivity {
                 SmsManager.getDefault().sendTextMessage(contactNumber, null,
                         message, null, null);
 
-                Long timeLong = System.currentTimeMillis()/1000;
+                Long timeLong = System.currentTimeMillis() / 1000;
                 String timeStamp = timeLong.toString();
 
                 input.getText().clear();
@@ -208,16 +206,17 @@ public class TextActivity extends AppCompatActivity {
 
 
     private void refreshSmsInbox() {
+        messageAdapter.clear();
         final int MYTYPE = 2;
         String[] address = {contact.getPhoneNumber(), PhoneNumberPrefix.addPrefix(contact.getPhoneNumber())};
 
         ContentResolver contentResolver = getContentResolver();
+
         Cursor smsCursor = contentResolver.query(Uri.parse("content://sms"), null, "address = ? or address = ?", address, "date");
         int indexBody = smsCursor.getColumnIndex("body");
         int indexIsMe = smsCursor.getColumnIndex("type");
         int indexDate = smsCursor.getColumnIndex("date");
         if (indexBody < 0 || !smsCursor.moveToFirst()) return;
-        messageAdapter.clear();
 
         do {
             boolean isMe = smsCursor.getInt(indexIsMe) == MYTYPE;
@@ -227,6 +226,7 @@ public class TextActivity extends AppCompatActivity {
                     .withMe(isMe)
                     .withTime(getDate(smsCursor.getString(indexDate))).build();
             messageAdapter.add(message);
+
         } while (smsCursor.moveToNext());
         messageAdapter.notifyDataSetChanged();
         messages.setSelection(messageAdapter.getCount() - 1);

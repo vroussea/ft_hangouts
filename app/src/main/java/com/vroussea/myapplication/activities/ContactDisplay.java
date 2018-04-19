@@ -1,8 +1,13 @@
 package com.vroussea.myapplication.activities;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,14 +19,18 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.vroussea.myapplication.R;
 import com.vroussea.myapplication.contact.Contact;
 import com.vroussea.myapplication.contact.ContactHelper;
 import com.vroussea.myapplication.utils.BitmapToBytes;
 import com.vroussea.myapplication.utils.Colors;
+import com.vroussea.myapplication.utils.PhoneNumberPrefix;
 
 public class ContactDisplay extends AppCompatActivity {
+
+    private final static int CALL_PERMISSIONS_REQUEST = 1;
 
     ContactHelper contactHelper = new ContactHelper();
 
@@ -60,7 +69,11 @@ public class ContactDisplay extends AppCompatActivity {
             case R.id.action_sms_contact:
                 intent = new Intent(this, TextActivity.class);
                 intent.putExtra("contactId", currentContact.get_id());
-                startActivity(intent);
+                new Thread(new Runnable() {
+                    public void run() {
+                        startActivity(intent);
+                    }
+                }).start();
                 return true;
             case R.id.action_edit_contact:
                 intent = new Intent(this, ContactEdit.class);
@@ -89,9 +102,24 @@ public class ContactDisplay extends AppCompatActivity {
                         .setNegativeButton(R.string.no, null)
                         .show();
                 return true;
+            case R.id.action_call_contact:
+                Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.fromParts("tel", PhoneNumberPrefix.addPrefix(currentContact.getPhoneNumber()), null));
+                getPermissionToCall(callIntent);
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void getPermissionToCall(Intent callIntent) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CALL_PHONE},
+                    CALL_PERMISSIONS_REQUEST);
+        }
+        else {
+            startActivity(callIntent);
+        }
     }
 
     @Override
@@ -136,5 +164,19 @@ public class ContactDisplay extends AppCompatActivity {
             text = getResources().getString(R.string.empty_field);
         }
         textView.append(" : " + text);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        if (requestCode == CALL_PERMISSIONS_REQUEST) {
+            if (grantResults.length != 1 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, R.string.permissionsNotGranted, Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 }
