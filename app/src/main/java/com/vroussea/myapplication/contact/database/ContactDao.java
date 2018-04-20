@@ -50,8 +50,27 @@ public class ContactDao {
         return contacts;
     }
 
-    public Contact querryOne(int id) {
+    public Contact querryOneById(int id) {
         Cursor cursor = readDatabase.rawQuery("SELECT * FROM " + ContactEntry.TABLE_NAME + " WHERE " + ContactEntry._ID + " = " + id, null);
+
+        Contact contact = new Contact();
+        cursor.moveToFirst();
+
+        contact.set_id(cursor.getInt(cursor.getColumnIndexOrThrow(ContactEntry._ID)));
+        contact.setFirstName(cursor.getString(cursor.getColumnIndexOrThrow(ContactEntry.COLUMN_FIRSTNAME)));
+        contact.setLastName(cursor.getString(cursor.getColumnIndexOrThrow(ContactEntry.COLUMN_LASTNAME)));
+        contact.setNickname(cursor.getString(cursor.getColumnIndexOrThrow(ContactEntry.COLUMN_NICKNAME)));
+        contact.setPhoneNumber(cursor.getString(cursor.getColumnIndexOrThrow(ContactEntry.COLUMN_PHONENUMBER)));
+        contact.setEMail(cursor.getString(cursor.getColumnIndexOrThrow(ContactEntry.COLUMN_EMAIL)));
+        contact.setPicture(cursor.getBlob(cursor.getColumnIndexOrThrow(ContactEntry.COLUMN_PICTURE)));
+
+        cursor.close();
+
+        return contact;
+    }
+
+    public Contact querryOneByPhoneNumber(String phoneNumber) {
+        Cursor cursor = readDatabase.rawQuery("SELECT * FROM " + ContactEntry.TABLE_NAME + " WHERE " + ContactEntry.COLUMN_PHONENUMBER + " = " + phoneNumber, null);
 
         Contact contact = new Contact();
         cursor.moveToFirst();

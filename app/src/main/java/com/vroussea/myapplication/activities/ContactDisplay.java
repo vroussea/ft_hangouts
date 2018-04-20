@@ -160,7 +160,7 @@ public class ContactDisplay extends AppCompatActivity {
     }
 
     private void append(TextView textView, String text) {
-        if (text.isEmpty()) {
+        if (text == null || text.isEmpty()) {
             text = getResources().getString(R.string.empty_field);
         }
         textView.append(" : " + text);

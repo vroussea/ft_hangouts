@@ -1,6 +1,7 @@
 package com.vroussea.myapplication.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -14,9 +15,12 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
+import android.telephony.SmsMessage;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -51,6 +55,14 @@ public class TextActivity extends AppCompatActivity {
 
     private BroadcastReceiver SMSReceiver;
 
+    private int numberOfShownSms = 75;
+    private static final int ADDMESSAGES = 1;
+    private boolean topOfListAsBeenSeen = false;
+    private final int MYTYPE = 2;
+
+    private Cursor smsCursor;
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,10 +82,50 @@ public class TextActivity extends AppCompatActivity {
 
         getPermissionToReceiveSMS();
 
+        messages.setOnTouchListener((v, event) -> {
+            // get the top of  first child
+            View mView = messages.getChildAt(0);
+            int top = mView.getTop();
+
+            switch(event.getAction()){
+
+                case MotionEvent.ACTION_MOVE:
+                    // see if it top is at Zero, and first visible position is at 0
+                    if(top == 0 && messages.getFirstVisiblePosition() == 0 && !topOfListAsBeenSeen){
+                        addNewMessages();
+                        topOfListAsBeenSeen = true;
+                    }
+                    else {
+                        topOfListAsBeenSeen = false;
+                    }
+            }
+            return false;
+        });
+
         SMSReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                refreshSmsInbox();
+                Bundle bundle = intent.getExtras();
+                SmsMessage[] msgs = null;
+                if (bundle != null)
+                {
+                    Object[] pdus = (Object[]) bundle.get("pdus");
+                    msgs = new SmsMessage[pdus.length];
+                    for (int i=0; i<msgs.length; i++)
+                    {
+                        msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
+                        Long timeLong = System.currentTimeMillis() / 1000;
+                        String timeStamp = timeLong.toString();
+
+                        messageAdapter.add(MessageBuilder.aMessage()
+                                .withMe(false)
+                                .withSenderName(contact.getFirstName())
+                                .withText(msgs[i].getMessageBody())
+                                .withTime(getDate(timeStamp)).build());
+                        messageAdapter.notifyDataSetChanged();
+                        messages.setSelection(messageAdapter.getCount() - 1);
+                    }
+                }
             }
         };
     }
@@ -92,6 +144,7 @@ public class TextActivity extends AppCompatActivity {
 
         Window window = getWindow();
 
+        numberOfShownSms = 50;
         refreshSmsInbox();
 
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -130,8 +183,6 @@ public class TextActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.READ_SMS},
                     READ_SMS_PERMISSIONS_REQUEST);
-        } else {
-            refreshSmsInbox();
         }
     }
 
@@ -178,7 +229,7 @@ public class TextActivity extends AppCompatActivity {
                                            @NonNull int[] grantResults) {
         if (requestCode == READ_SMS_PERMISSIONS_REQUEST) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                refreshSmsInbox();
+                //refreshSmsInbox();
             } else {
                 Toast.makeText(this, R.string.permissionsNotGranted, Toast.LENGTH_SHORT).show();
                 finish();
@@ -193,7 +244,7 @@ public class TextActivity extends AppCompatActivity {
             }
         } else if (requestCode == RECEIVE_SMS_PERMISSIONS_REQUEST) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                refreshSmsInbox();
+                //refreshSmsInbox();
             } else {
                 getPermissionToReceiveSMS();
                 Toast.makeText(this, R.string.permissionsNotGranted, Toast.LENGTH_SHORT).show();
@@ -207,16 +258,17 @@ public class TextActivity extends AppCompatActivity {
 
     private void refreshSmsInbox() {
         messageAdapter.clear();
-        final int MYTYPE = 2;
+
         String[] address = {contact.getPhoneNumber(), PhoneNumberPrefix.addPrefix(contact.getPhoneNumber())};
 
         ContentResolver contentResolver = getContentResolver();
 
-        Cursor smsCursor = contentResolver.query(Uri.parse("content://sms"), null, "address = ? or address = ?", address, "date");
+        smsCursor = contentResolver.query(Uri.parse("content://sms"), null, "address = ? or address = ?", address, "date");
         int indexBody = smsCursor.getColumnIndex("body");
         int indexIsMe = smsCursor.getColumnIndex("type");
         int indexDate = smsCursor.getColumnIndex("date");
-        if (indexBody < 0 || !smsCursor.moveToFirst()) return;
+        int cursorSize = smsCursor.getCount();
+        if (indexBody < 0 || !smsCursor.moveToPosition(cursorSize - (cursorSize >= numberOfShownSms ? numberOfShownSms : cursorSize))) return;
 
         do {
             boolean isMe = smsCursor.getInt(indexIsMe) == MYTYPE;
@@ -233,7 +285,48 @@ public class TextActivity extends AppCompatActivity {
     }
 
     private String getDate(String timeStamp) {
-        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM HH:mm");
         return formatter.format(new Date(Long.parseLong(timeStamp)));
+    }
+
+    private void addNewMessages() {
+        int indexBody = smsCursor.getColumnIndex("body");
+        int indexIsMe = smsCursor.getColumnIndex("type");
+        int indexDate = smsCursor.getColumnIndex("date");
+        int cursorSize = smsCursor.getCount();
+        if (indexBody < 0 || !smsCursor.moveToPosition(cursorSize - (cursorSize > numberOfShownSms + ADDMESSAGES ? numberOfShownSms + ADDMESSAGES : cursorSize))) return;
+
+        do {
+            boolean isMe = smsCursor.getInt(indexIsMe) == MYTYPE;
+            Message message = MessageBuilder.aMessage()
+                    .withSenderName(contact.getFirstName())
+                    .withText(smsCursor.getString(indexBody))
+                    .withMe(isMe)
+                    .withTime(getDate(smsCursor.getString(indexDate))).build();
+             addNewItem(message);
+
+        } while (smsCursor.moveToNext() && smsCursor.getPosition() < cursorSize - numberOfShownSms);
+        numberOfShownSms += ADDMESSAGES;
+        messageAdapter.notifyDataSetChanged();
+    }
+
+    public void addNewItem(Message message) {
+        final int positionToSave = messages.getFirstVisiblePosition();
+        messageAdapter.insert(message, 0);
+        messages.post(() -> messages.setSelection(positionToSave));
+
+        messages.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+
+            @Override
+            public boolean onPreDraw() {
+                if(messages.getFirstVisiblePosition() == positionToSave) {
+                    messages.getViewTreeObserver().removeOnPreDrawListener(this);
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+        });
     }
 }

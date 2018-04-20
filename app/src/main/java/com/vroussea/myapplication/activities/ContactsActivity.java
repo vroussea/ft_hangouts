@@ -1,10 +1,20 @@
 package com.vroussea.myapplication.activities;
 
+import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.database.CursorIndexOutOfBoundsException;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.telephony.SmsMessage;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -13,17 +23,25 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.vroussea.myapplication.R;
 import com.vroussea.myapplication.adapters.ContactAdapter;
 import com.vroussea.myapplication.contact.Contact;
+import com.vroussea.myapplication.contact.ContactBuilder;
 import com.vroussea.myapplication.contact.ContactHelper;
+import com.vroussea.myapplication.utils.BitmapToBytes;
 import com.vroussea.myapplication.utils.Colors;
+import com.vroussea.myapplication.utils.PhoneNumberPrefix;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class ContactsActivity extends AppCompatActivity {
     ContactHelper contactHelper = new ContactHelper();
+    private BroadcastReceiver SMSReceiver;
+    private final int RECEIVE_SMS_PERMISSIONS_REQUEST = 1;
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -44,6 +62,45 @@ public class ContactsActivity extends AppCompatActivity {
         myToolbar.setTitle("");
 
         displayContacts(new Intent(this, ContactDisplay.class));
+
+        getPermissionToReceiveSMS();
+
+        SMSReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle bundle = intent.getExtras();
+                SmsMessage[] msgs = null;
+                if (bundle != null)
+                {
+                    Object[] pdus = (Object[]) bundle.get("pdus");
+                    msgs = new SmsMessage[pdus.length];
+                    for (int i=0; i<msgs.length; i++)
+                    {
+                        msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
+                        String phoneNumber = PhoneNumberPrefix.removePrefix(msgs[i].getDisplayOriginatingAddress());
+                        Toast.makeText(ContactsActivity.this, phoneNumber, Toast.LENGTH_SHORT).show();
+                        try {
+                            Contact contact = contactHelper.getContactByPhoneNumber(phoneNumber);
+                        } catch (ExecutionException noContact) {
+                            contactHelper.addContact(ContactBuilder.aContact()
+                                    .withEMail("")
+                                    .withLastName("")
+                                    .withNickname("")
+                                    .withPhoneNumber(phoneNumber)
+                                    .withFirstName(phoneNumber)
+                                    .withProfilePic(BitmapToBytes.getBytes(BitmapFactory.decodeResource(getResources(), R.drawable.no_picture))).build());
+                        } catch (Exception e) {
+                            Log.d("error with sms contact", e.getMessage());
+                        }
+                    }
+                }
+            }
+        };
+
+        IntentFilter filter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+        filter.setPriority(10000);
+
+        registerReceiver(SMSReceiver, filter);
     }
 
     @Override
@@ -68,6 +125,13 @@ public class ContactsActivity extends AppCompatActivity {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
         window.setStatusBarColor(ContextCompat.getColor(this, colors.getSatusBarColor()));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        unregisterReceiver(SMSReceiver);
     }
 
     @Override
@@ -123,5 +187,30 @@ public class ContactsActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    public void getPermissionToReceiveSMS() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.RECEIVE_SMS},
+                    RECEIVE_SMS_PERMISSIONS_REQUEST);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        if (requestCode == RECEIVE_SMS_PERMISSIONS_REQUEST) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                //refreshSmsInbox();
+            } else {
+                getPermissionToReceiveSMS();
+                Toast.makeText(this, R.string.permissionsNotGranted, Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 }

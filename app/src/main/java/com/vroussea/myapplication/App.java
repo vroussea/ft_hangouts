@@ -2,10 +2,19 @@ package com.vroussea.myapplication;
 
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.telephony.SmsMessage;
 import android.widget.Toast;
 
 import com.vroussea.myapplication.handlers.AppLifecycleHandler;
 import com.vroussea.myapplication.handlers.LifecycleDelegate;
+import com.vroussea.myapplication.message.MessageBuilder;
 
 import java.util.Calendar;
 
@@ -26,7 +35,10 @@ public class App extends Application implements LifecycleDelegate {
 
         AppLifecycleHandler lifeCycleHandler = new AppLifecycleHandler(this);
         registerLifecycleHandler(lifeCycleHandler);
+
     }
+
+    //@Override
 
     @Override
     public void onAppBackgrounded() {

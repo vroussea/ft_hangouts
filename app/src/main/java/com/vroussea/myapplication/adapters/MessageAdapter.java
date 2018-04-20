@@ -50,10 +50,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         return rowView;
     }
 
-    @Override
+    /*@Override
     public void add(Message message) {
         super.add(message);
         //messages.add(message);
-    }
+    }*/
 
 }

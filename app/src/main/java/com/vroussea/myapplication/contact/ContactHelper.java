@@ -19,12 +19,7 @@ public class ContactHelper extends Activity {
 
     public List<Contact> getContacts() throws ExecutionException, InterruptedException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Callable<List<Contact>> callable = new Callable<List<Contact>>() {
-            @Override
-            public List<Contact> call() {
-                return mDao.querryAll();
-            }
-        };
+        Callable<List<Contact>> callable = () -> mDao.querryAll();
         Future<List<Contact>> future = executor.submit(callable);
         executor.shutdown();
 
@@ -33,12 +28,16 @@ public class ContactHelper extends Activity {
 
     public Contact getContactById(int id) throws ExecutionException, InterruptedException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Callable<Contact> callable = new Callable<Contact>() {
-            @Override
-            public Contact call() {
-                return mDao.querryOne(id);
-            }
-        };
+        Callable<Contact> callable = () -> mDao.querryOneById(id);
+        Future<Contact> future = executor.submit(callable);
+        executor.shutdown();
+
+        return future.get();
+    }
+
+    public Contact getContactByPhoneNumber(String phoneNumber) throws ExecutionException, InterruptedException {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Callable<Contact> callable = () -> mDao.querryOneByPhoneNumber(phoneNumber);
         Future<Contact> future = executor.submit(callable);
         executor.shutdown();
 
