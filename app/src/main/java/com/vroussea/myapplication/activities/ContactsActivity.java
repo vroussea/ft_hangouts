@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.database.CursorIndexOutOfBoundsException;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,13 +17,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.vroussea.myapplication.App;
 import com.vroussea.myapplication.R;
 import com.vroussea.myapplication.adapters.ContactAdapter;
 import com.vroussea.myapplication.contact.Contact;
@@ -35,11 +33,11 @@ import com.vroussea.myapplication.utils.Colors;
 import com.vroussea.myapplication.utils.PhoneNumberPrefix;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class ContactsActivity extends AppCompatActivity {
     ContactHelper contactHelper = new ContactHelper();
     private BroadcastReceiver SMSReceiver;
+
     private final int RECEIVE_SMS_PERMISSIONS_REQUEST = 1;
 
 
@@ -55,7 +53,7 @@ public class ContactsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar_menu);
+        Toolbar myToolbar = findViewById(R.id.toolbar_menu);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
@@ -65,30 +63,37 @@ public class ContactsActivity extends AppCompatActivity {
 
         getPermissionToReceiveSMS();
 
+        contactHelper = new ContactHelper();
         SMSReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Bundle bundle = intent.getExtras();
-                SmsMessage[] msgs = null;
-                if (bundle != null)
-                {
+                if (bundle != null) {
                     Object[] pdus = (Object[]) bundle.get("pdus");
-                    msgs = new SmsMessage[pdus.length];
-                    for (int i=0; i<msgs.length; i++)
-                    {
-                        msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
+                    SmsMessage[] msgs = new SmsMessage[pdus.length];
+                    for (int i = 0; i < msgs.length; i++) {
+                        msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
                         String phoneNumber = PhoneNumberPrefix.removePrefix(msgs[i].getDisplayOriginatingAddress());
-                        Toast.makeText(ContactsActivity.this, phoneNumber, Toast.LENGTH_SHORT).show();
                         try {
-                            Contact contact = contactHelper.getContactByPhoneNumber(phoneNumber);
-                        } catch (ExecutionException noContact) {
-                            contactHelper.addContact(ContactBuilder.aContact()
+                            //if (contactHelper.getContactByPhoneNumber(phoneNumber) == null) {
+                            Contact contact = ContactBuilder.aContact()
                                     .withEMail("")
                                     .withLastName("")
                                     .withNickname("")
                                     .withPhoneNumber(phoneNumber)
                                     .withFirstName(phoneNumber)
-                                    .withProfilePic(BitmapToBytes.getBytes(BitmapFactory.decodeResource(getResources(), R.drawable.no_picture))).build());
+                                    .withProfilePic(BitmapToBytes.getBytes(BitmapFactory.decodeResource(getResources(), R.drawable.no_picture))).build();
+                            for (Contact contactIterator : contactHelper.getContacts()) {
+                                if (contactIterator.getPhoneNumber().equals(phoneNumber)) {
+                                    contact = null;
+                                    break;
+                                }
+                            }
+
+                            if (contact != null) { contactHelper.addContact(contact);
+                                displayContacts(new Intent(App.getContext(), ContactDisplay.class));
+                            }
+                            //}
                         } catch (Exception e) {
                             Log.d("error with sms contact", e.getMessage());
                         }
@@ -171,21 +176,14 @@ public class ContactsActivity extends AppCompatActivity {
         listview.setAdapter(adapter);
 
 
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, final View view,
-                                    int position, long id) {
-                final Contact item = (Contact) parent.getItemAtPosition(position);
-                view.animate().alpha(0).withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        intent.putExtra("contact", item.get_id());
-                        adapter.notifyDataSetChanged();
-                        view.setAlpha(1);
-                        startActivity(intent);
-                    }
-                });
-            }
+        listview.setOnItemClickListener((parent, view, position, id) -> {
+            final Contact item = (Contact) parent.getItemAtPosition(position);
+            view.animate().alpha(0).withEndAction(() -> {
+                intent.putExtra("contact", item.get_id());
+                adapter.notifyDataSetChanged();
+                view.setAlpha(1);
+                startActivity(intent);
+            });
         });
     }
 

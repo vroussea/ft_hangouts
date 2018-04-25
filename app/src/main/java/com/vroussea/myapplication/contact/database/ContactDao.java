@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.vroussea.myapplication.contact.Contact;
 import com.vroussea.myapplication.contact.database.ContactContract.ContactEntry;
@@ -34,7 +35,18 @@ public class ContactDao {
     }
 
     public List<Contact> querryAll() {
-        Cursor cursor = readDatabase.rawQuery("select * from " + ContactEntry.TABLE_NAME, null);
+        Cursor cursor;
+        try {
+            cursor = readDatabase.rawQuery("SELECT * FROM " + ContactEntry.TABLE_NAME, null);
+        } catch (Exception e) {
+            cursor = null;
+            Log.d("error in DAO", e.getMessage());
+        }
+
+        if(cursor == null || cursor.getCount() <= 0){
+            cursor.close();
+            return null;
+        }
 
         List<Contact> contacts = new ArrayList<>();
         while (cursor.moveToNext()) {
@@ -51,7 +63,18 @@ public class ContactDao {
     }
 
     public Contact querryOneById(int id) {
-        Cursor cursor = readDatabase.rawQuery("SELECT * FROM " + ContactEntry.TABLE_NAME + " WHERE " + ContactEntry._ID + " = " + id, null);
+        Cursor cursor;
+        try {
+            cursor = readDatabase.rawQuery("SELECT * FROM " + ContactEntry.TABLE_NAME + " WHERE " + ContactEntry._ID + " = " + id, null);
+        } catch (Exception e) {
+            cursor = null;
+            Log.d("error in DAO", e.getMessage());
+        }
+
+        if(cursor == null || cursor.getCount() <= 0){
+            cursor.close();
+            return null;
+        }
 
         Contact contact = new Contact();
         cursor.moveToFirst();
@@ -70,7 +93,18 @@ public class ContactDao {
     }
 
     public Contact querryOneByPhoneNumber(String phoneNumber) {
-        Cursor cursor = readDatabase.rawQuery("SELECT * FROM " + ContactEntry.TABLE_NAME + " WHERE " + ContactEntry.COLUMN_PHONENUMBER + " = " + phoneNumber, null);
+        Cursor cursor;
+        try {
+            cursor = readDatabase.rawQuery("SELECT * FROM " + ContactEntry.TABLE_NAME + " WHERE " + ContactEntry.COLUMN_PHONENUMBER + " = " + phoneNumber, null);
+        } catch (Exception e) {
+            cursor = null;
+            Log.d("error in DAO", e.getMessage());
+        }
+
+        if(cursor == null || cursor.getCount() <= 0){
+            cursor.close();
+            return null;
+        }
 
         Contact contact = new Contact();
         cursor.moveToFirst();
