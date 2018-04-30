@@ -76,7 +76,6 @@ public class ContactsActivity extends AppCompatActivity {
                         msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
                         String phoneNumber = PhoneNumberPrefix.removePrefix(msgs[i].getDisplayOriginatingAddress());
                         try {
-                            //if (contactHelper.getContactByPhoneNumber(phoneNumber) == null) {
                             Contact contact = ContactBuilder.aContact()
                                     .withEMail("")
                                     .withLastName("")
