@@ -3,6 +3,7 @@ package com.vroussea.myapplication;
 //import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
+import android.test.AndroidTestCase;
 
 import com.vroussea.myapplication.contact.Contact;
 import com.vroussea.myapplication.contact.database.ContactDao;
@@ -10,12 +11,14 @@ import com.vroussea.myapplication.contact.database.ContactDao;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.List;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
 
+//@RunWith(RobolectricGradleTestRunner.class)
 public class ContactDatabaseTest {
     /*private ContactDao mUserDao;
     private ContactDatabase mDb;

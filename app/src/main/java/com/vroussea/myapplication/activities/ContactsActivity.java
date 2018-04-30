@@ -32,6 +32,7 @@ import com.vroussea.myapplication.utils.BitmapToBytes;
 import com.vroussea.myapplication.utils.Colors;
 import com.vroussea.myapplication.utils.PhoneNumberPrefix;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ContactsActivity extends AppCompatActivity {
@@ -83,19 +84,24 @@ public class ContactsActivity extends AppCompatActivity {
                                     .withPhoneNumber(phoneNumber)
                                     .withFirstName(phoneNumber)
                                     .withProfilePic(BitmapToBytes.getBytes(BitmapFactory.decodeResource(getResources(), R.drawable.no_picture))).build();
-                            for (Contact contactIterator : contactHelper.getContacts()) {
-                                if (contactIterator.getPhoneNumber().equals(phoneNumber)) {
-                                    contact = null;
-                                    break;
+
+                            List<Contact> contacts = contactHelper.getContacts();
+                            if (contacts == null) {
+                                addContact(contact);
+                            } else {
+                                for (Contact contactIterator : contactHelper.getContacts()) {
+                                    if (contactIterator.getPhoneNumber().equals(phoneNumber)) {
+                                        contact = null;
+                                        break;
+                                    }
+                                }
+
+                                if (contact != null) {
+                                    addContact(contact);
                                 }
                             }
-
-                            if (contact != null) { contactHelper.addContact(contact);
-                                displayContacts(new Intent(App.getContext(), ContactDisplay.class));
-                            }
-                            //}
                         } catch (Exception e) {
-                            Log.d("error with sms contact", e.getMessage());
+                            Log.e("error with sms contact", e.getMessage());
                         }
                     }
                 }
@@ -106,6 +112,11 @@ public class ContactsActivity extends AppCompatActivity {
         filter.setPriority(10000);
 
         registerReceiver(SMSReceiver, filter);
+    }
+
+    void addContact(Contact newContact) {
+        contactHelper.addContact(newContact);
+        displayContacts(new Intent(App.getContext(), ContactDisplay.class));
     }
 
     @Override
@@ -167,6 +178,9 @@ public class ContactsActivity extends AppCompatActivity {
         List<Contact> contacts;
         try {
             contacts = contactHelper.getContacts();
+            if (contacts == null) {
+                contacts = new ArrayList<>();
+            }
         } catch (Exception e) {
             finish();
             return;
